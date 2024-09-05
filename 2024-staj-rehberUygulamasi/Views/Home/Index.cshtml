@@ -1,0 +1,445 @@
+﻿@{
+    ViewData["Title"] = "Rehber";
+}
+<html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.2/dist/sweetalert2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.2/dist/sweetalert2.all.min.js"></script>
+    <style>
+        table {
+            border-collapse: collapse;
+            background-color: #fff;
+        }
+
+            table tr, table td, table th {
+                border: 1px solid #bbb;
+                padding: 10px 20px;
+            }
+
+            table th {
+                background-color: #d1084b;
+                color: #fff;
+                font-weight: 600;
+            }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Yeni Kişi Ekle</button>
+        <div>
+            <table id="datatable" class="display" style="width:75%">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>İsim</th>
+                        <th>Soyisim</th>
+                        <th>Adres</th>
+                        <th>GSM</th>
+                        <th>Resim</th>
+                        <th>İşlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- DataTable içeriği dinamik olarak buraya eklenecek -->
+                </tbody>
+                <tfoot>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Yeni Kişi Oluştur</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addKisiForm">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Ad</label>
+                            <input type="text" class="form-control" id="name" name="Name" placeholder="Ad">
+                        </div>
+                        <div class="mb-3">
+                            <label for="surname" class="form-label">Soyad</label>
+                            <input type="text" class="form-control" id="surname" name="Surname" placeholder="Soyad">
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Adres</label>
+                            <textarea class="form-control" id="address" name="Address" rows="3" placeholder="Adres"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gsm" class="form-label">Telefon Numarası*</label>
+                            <input type="text" class="form-control" id="gsm" name="GSM" placeholder="(05---------)" pattern="^05\d{9}$" maxlength="11" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Resim</label>
+                            <input type="file" class="form-control" id="image" name="Image">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-2" data-bs-dismiss="modal" style="background-color:red">Vazgeç</button>
+                    <button type="button" class="btn btn-3" id="btnSave" onclick="saveKisi()" style="background-color:limegreen">Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="duzenleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Güncelle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="EditForm">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Ad</label>
+                            <input type="text" class="form-control" id="editname" name="name" placeholder="Ad">
+                        </div>
+                        <div class="mb-3">
+                            <label for="surname" class="form-label">Soyad</label>
+                            <input type="text" class="form-control" id="editsurname" name="surname" placeholder="Soyad">
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Adres</label>
+                            <textarea class="form-control" id="editaddress" name="address" rows="3" placeholder="Adres"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="gsm" class="form-label">Telefon Numarası*</label>
+                            <input type="text" class="form-control" id="editgsm" name="gsm" placeholder="(05---------)" pattern="^05\d{9}$" maxlength="11" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="image" class="form-label">Resim</label>
+                            <input type="file" class="form-control" id="editimage" name="Image">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-edit2" data-bs-dismiss="modal" style="background-color:red">Vazgeç</button>
+                    <button type="button" class="btn btn-edit3" id="btnEdit" onclick="editKisi()" style="background-color:limegreen">Kaydet</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function validateForm() {
+            const gsmInput = document.getElementById('gsm');
+            if (gsmInput.value === "") {
+                alert('Telefon numarası alanı boş bırakılamaz!');
+                return false;
+            }
+
+            const gsmPattern = /^05\d{9}$/;
+            if (!gsmPattern.test(gsmInput.value)) {
+                Swal.fire({
+                    title: "HATA",
+                    text: "Lütfen 05 ile başlayan 11 haneli telefon numarası giriniz.",
+                    icon: "error"
+                });
+                return false;
+            }
+
+            return true;
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const saveButton = document.querySelector('.btn-3');
+            saveButton.addEventListener('click', (event) => {
+                if (!validateForm()) {
+                    event.preventDefault();
+
+                }
+            });
+        });
+
+
+        function KisiSil(kisiId) {
+            Swal.fire({
+                title: "Bu kişiyi silmek istediğinize emin misiniz?",
+                text: "Bu işlem geri alınamaz!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Evet, sil!',
+                cancelButtonText: 'Hayır, vazgeç!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Kisi/KisiSil',
+                        type: 'POST',
+                        data: { kisiId: kisiId },
+                        success: function (result) {
+                            Swal.fire({
+                                title: "Silindi!",
+                                text: "Kişi başarıyla silindi.",
+                                icon: "success"
+                            });
+                            $('#datatable').DataTable().ajax.reload();
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire({
+                                title: "HATA!",
+                                text: "Kişi silinemedi.",
+                                icon: "error"
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        function saveKisi() {
+            var form = document.getElementById('addKisiForm');
+            var formData = new FormData(form);
+
+            // Resmi base64'e çevir
+            var imageFile = document.getElementById('image').files[0];
+            if (imageFile) {
+                var reader = new FileReader();
+                reader.onload = function (event) {
+                    formData.set('Image', event.target.result.split(',')[1]); // Base64 kısmını al
+                    sendFormData(formData);
+                };
+                reader.readAsDataURL(imageFile);
+            } else {
+                sendFormData(formData);
+            }
+        }
+
+        function sendFormData(formData) {
+            $.ajax({
+                url: '/Kisi/AddKisi',  // Controller'ınızın yolunu buraya yazın
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (result) {
+                    if (result.success) {
+                        $('#exampleModal').modal('hide');
+                        // Datatable'ı yenile veya yeni kişiyi ekle
+                        Swal.fire({
+                            title: "Başarılı!",
+                            text: "Kişi başarıyla eklendi.",
+                            icon: "success"
+                        });
+                        var table = $('#datatable').DataTable();
+                        table.ajax.reload();
+
+                    } else {
+                        Swal.fire({
+                            title: "Hata!",
+                            text: "Kişi eklenirken bir hata oluştu: " + result.errors.join(", "),
+                            icon: "error"
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                    Swal.fire({
+                        title: "Hata!",
+                        text: "Bir hata oluştu: " + error,
+                        icon: "error"
+                    });
+                }
+            });
+        }
+
+        function saveFormData() {
+            if (!validateForm()) {
+                return; // Doğrulama başarısız ise işlemi durdur
+            }
+            var formData = {
+                Name: $('#name').val(),
+                Surname: $('#surname').val(),
+                Address: $('#address').val(),
+                GSM: $('#gsm').val()
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '/Kisi/AddKisi',
+                data: formData,
+                success: function (response) {
+                    if (response.success) {
+                        $('#exampleModal').modal('hide');
+                        Swal.fire({
+                            title: "Kaydedildi",
+                            text: "Kişi Başarıyla Oluşturuldu!",
+                            icon: "success"
+                        });
+
+
+                        // DataTable'a yeni satır ekleme
+                        var table = $('#datatable').DataTable();
+                        table.row.add({
+                            'Id': response.user.Id,
+                            'Name': response.user.Name,
+                            'Surname': response.user.Surname,
+                            'Address': response.user.Address,
+                            'GSM': response.user.GSM,
+
+                        }).draw(false);
+                        var table = $('#datatable').DataTable();
+                        table.ajax.reload();
+
+                        // Formu sıfırlama
+                        $('#addKisiForm')[0].reset();
+                    } else {
+                        Swal.fire({
+                            title: "HATA",
+                            text: "Kaydetme başarısız!",
+                            icon: "error"
+                        });
+                    }
+                },
+                error: function () {
+                    alert('Bir hata oluştu, lütfen tekrar deneyin.');
+                }
+            });
+        }
+
+        function editKisi() {
+            if (!validateEditForm()) {
+                return; // Doğrulama başarısız ise işlemi durdur
+            }
+
+            var form = document.getElementById('EditForm'); // Düzenleme formunun ID'si
+            var formData = new FormData(form);
+
+            // Resmi base64'e çevir
+            var imageFile = document.getElementById('editimage').files[0]; // Düzenleme formundaki resim input'unun ID'si
+            if (imageFile) {
+                var reader = new FileReader();
+                reader.onload = function (event) {
+                    formData.set('Image', event.target.result.split(',')[1]); // Base64 kısmını al
+                    sendEditFormData(formData);
+                };
+                reader.readAsDataURL(imageFile);
+            } else {
+                sendEditFormData(formData);
+            }
+        }
+        function sendEditFormData(formData) {
+            var updatedKisiId = $('#datatable').DataTable().row('.selected').data().id;
+            formData.append('Id', updatedKisiId); // FormData'ya ID ekleyin
+
+            $.ajax({
+                type: 'POST',
+                url: '/Kisi/EditKisi',
+                data: JSON.stringify(Object.fromEntries(formData)),
+                processData: false,
+                contentType: 'application/json; charset=UTF-8',
+                success: function (response) {
+                    if (response.success) {
+                        $('#duzenleModal').modal('hide');
+                        Swal.fire({
+                            title: "Güncellendi",
+                            text: "Kişi başarıyla güncellendi!",
+                            icon: "success"
+                        });
+
+                        // DataTable'ı yeniden yükle
+                        $('#datatable').DataTable().ajax.reload();
+                    } else {
+                        Swal.fire({
+                            title: "HATA",
+                            text: response.message,
+                            icon: "error"
+                        });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    Swal.fire({
+                        title: "HATA",
+                        text: "Bir hata oluştu: " + error,
+                        icon: "error"
+                    });
+                }
+            });
+        }
+
+        function validateEditForm() {
+            const gsmInput = document.getElementById('editgsm');
+            if (gsmInput.value === "") {
+                alert('Telefon numarası alanı boş bırakılamaz!');
+                return false;
+            }
+
+            const gsmPattern = /^05\d{9}$/;
+            if (!gsmPattern.test(gsmInput.value)) {
+                Swal.fire({
+                    title: "HATA",
+                    text: "Lütfen 05 ile başlayan 11 haneli telefon numarası giriniz.",
+                    icon: "error"
+                });
+                return false;
+            }
+
+            return true;
+        }
+
+        $(document).ready(function () {
+            var table = $('#datatable').DataTable({
+                "ajax": {
+                    "url": "/Kisi/GetKisiler",
+                    "dataSrc": function (data) {
+                        return data;
+                    }
+                },
+                "columns": [
+                    { "data": "id" },
+                    { "data": "name" },
+                    { "data": "surname" },
+                    { "data": "address" },
+                    { "data": "gsm" },
+                    {
+                        "data": 'image', "render": function (data, type, row) {
+                            return `<img src="data:image/png;base64,${row.image}" width="50" height="50"/>`;
+                        }
+                    },
+                    { "data": null, "defaultContent": "<button class='btn btn-sm btn-primary btn-edit'>Edit</button> <button class='btn btn-sm btn-danger btn-delete'>Sil</button>" }
+                ]
+            });
+
+            $('#datatable').on('click', '.btn-delete', function () {
+                var data = table.row($(this).parents('tr')).data();
+                console.log(data);
+                KisiSil(data.id);
+            });
+
+            $('#datatable').on('click', '.btn-edit', function () {
+                var data = table.row($(this).parents('tr')).data();
+                console.log(data);
+
+                $('#editname').val(data.name);
+                $('#editsurname').val(data.surname);
+                $('#editaddress').val(data.address);
+                $('#editgsm').val(data.gsm);
+
+
+                // Satırı seçili hale getirme
+                table.$('tr.selected').removeClass('selected');
+                $(this).closest('tr').addClass('selected');
+
+                $('#duzenleModal').modal('show');
+            });
+        });
+    </script>
+</body>
+</html>
